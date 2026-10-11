@@ -49,6 +49,22 @@ public static class ProjectSetup
         origin.transform.position = new Vector3(0f, 1.5f, 0f);
         orbit.target = origin.transform;
 
+        // ---- 玩家（WASD 走路）----
+        var playerGo = new GameObject("Player");
+        playerGo.transform.position = new Vector3(0f, 0.5f, 5f);
+        // 小人占位：胶囊体 + 简单材质
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.transform.SetParent(playerGo.transform);
+        body.transform.localPosition = Vector3.zero;
+        body.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
+        var bodyMat = new Material(Shader.Find("Standard"));
+        bodyMat.color = new Color(0.95f, 0.55f, 0.25f); // 橙色小人
+        body.GetComponent<Renderer>().material = bodyMat;
+        Object.Destroy(body.GetComponent<Collider>()); // 用 CharacterController 碰撞
+        var pc = playerGo.AddComponent<PlayerController>();
+        pc.cameraPivot = camGo.transform;
+        pc.speed = 6f;
+
         // ---- 环境 ----
         AnimeEnvironment.Build();
 
