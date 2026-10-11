@@ -110,6 +110,7 @@ public static class ProjectSetup
         dex.Init(gm, egg, font, cam);
 
         // ---- 保存 ----
+        System.IO.Directory.CreateDirectory("Assets/Scenes");
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Main.unity");
         Debug.Log("场景搭建完成：Assets/Scenes/Main.unity");
     }
