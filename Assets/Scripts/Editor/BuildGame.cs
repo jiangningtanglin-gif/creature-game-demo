@@ -78,6 +78,24 @@ public static class BuildGame
             EditorApplication.Exit(1);
     }
 
+    [MenuItem("精灵收集 / 打包 WebGL")]
+    public static void BuildWebGL()
+    {
+        EnsureScene();
+        CommonSettings();
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.WebGL, "com.bo.creaturegame");
+        // WebGL 模板：默认
+        PlayerSettings.WebGL.template = "APPLICATION:Default";
+
+        var scenes = new[] { "Assets/Scenes/Main.unity" };
+        System.IO.Directory.CreateDirectory("Builds/WebGL");
+        var report = BuildPipeline.BuildPlayer(scenes, "Builds/WebGL",
+            BuildTarget.WebGL, BuildOptions.None);
+        Debug.Log("WebGL 打包结果: " + report.summary.result);
+        if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            EditorApplication.Exit(1);
+    }
+
     [MenuItem("精灵收集 / 打包 APK")]
     public static void BuildAndroid()
     {
