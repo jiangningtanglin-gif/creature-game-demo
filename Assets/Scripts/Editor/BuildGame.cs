@@ -11,9 +11,24 @@ public static class BuildGame
 {
     static void EnsureScene()
     {
-        var scene = EditorSceneManager.GetActiveScene();
-        if (!scene.isLoaded || scene.name != "Main")
-            ProjectSetup.BuildScene();
+        // 云构建机上资源可能还没导入完，重试几次
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            AssetDatabase.Refresh();
+            var scene = EditorSceneManager.GetActiveScene();
+            if (!scene.isLoaded || scene.name != "Main")
+                ProjectSetup.BuildScene();
+
+            // 验证场景文件真的生成了
+            if (System.IO.File.Exists("Assets/Scenes/Main.unity"))
+            {
+                Debug.Log($"场景已就绪 (尝试 {attempt + 1}/3)");
+                return;
+            }
+            Debug.LogWarning($"场景文件未生成，重试 {attempt + 1}/3...");
+            System.Threading.Thread.Sleep(5000);
+        }
+        throw new System.Exception("场景生成失败：Assets/Scenes/Main.unity 不存在，检查 GLB 是否导入成功");
     }
 
     static void CommonSettings()

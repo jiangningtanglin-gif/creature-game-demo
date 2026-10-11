@@ -16,9 +16,11 @@ public static class ProjectSetup
         AssetDatabase.Refresh();
 
         // ---- 取 GLB 预制体（glTFast 在 Editor 里把 .glb 导入为 GameObject）----
+        AssetDatabase.Refresh();
         var p0 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/taolingshou.glb");
         var p1 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/jinweimo.glb");
         var p2 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/fuyaoling.glb");
+        Debug.Log($"GLB 加载状态: taolingshou={p0 != null}, jinweimo={p1 != null}, fuyaoling={p2 != null}");
         if (!p0 || !p1 || !p2)
         {
             Debug.LogError("GLB 还没导入完成：请等 Unity 右下角导入进度走完再点一次。");
