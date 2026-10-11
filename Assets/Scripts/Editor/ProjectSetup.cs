@@ -16,21 +16,21 @@ public static class ProjectSetup
         AssetDatabase.Refresh();
 
         // ---- 取 GLB 预制体（glTFast 在 Editor 里把 .glb 导入为 GameObject）----
+        // 注意：占位体必须在 NewScene() 之后创建，否则会被新场景清空
         AssetDatabase.Refresh();
         var p0 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/taolingshou.glb");
         var p1 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/jinweimo.glb");
         var p2 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/fuyaoling.glb");
         Debug.Log($"GLB 加载状态: taolingshou={p0 != null}, jinweimo={p1 != null}, fuyaoling={p2 != null}");
-        if (!p0 || !p1 || !p2)
-        {
-            Debug.LogError("GLB 还没导入完成：请等 Unity 右下角导入进度走完再点一次。");
-            return;
-        }
         var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/NotoSansSC.ttf");
         if (!font) Debug.LogWarning("没找到 NotoSansSC.ttf，中文会显示为方框。");
 
         // ---- 新场景 ----
         var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
+        // GLB 没导进来就用占位体（云构建机常见），保证场景一定能生成
+        if (!p0) { Debug.LogWarning("taolingshou.glb 未导入，用占位体"); p0 = MakePlaceholder("苔铃兽占位", new Color(0.35f, 0.62f, 0.32f)); }
+        if (!p1) { Debug.LogWarning("jinweimo.glb 未导入，用占位体"); p1 = MakePlaceholder("烬尾貘占位", new Color(0.75f, 0.35f, 0.22f)); }
+        if (!p2) { Debug.LogWarning("fuyaoling.glb 未导入，用占位体"); p2 = MakePlaceholder("浮鳐灵占位", new Color(0.30f, 0.55f, 0.85f)); }
         // 删掉默认的 Main Camera / Directional Light（环境脚本自己建太阳）
         foreach (var go in GameObject.FindObjectsOfType<GameObject>())
         {
@@ -112,5 +112,22 @@ public static class ProjectSetup
         // ---- 保存 ----
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Main.unity");
         Debug.Log("场景搭建完成：Assets/Scenes/Main.unity");
+    }
+
+    /// <summary>
+    /// GLB 导不进来时的占位精灵：彩色胶囊体，免得场景生成失败。
+    /// </summary>
+    static GameObject MakePlaceholder(string name, Color color)
+    {
+        var go = new GameObject(name);
+        var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        capsule.transform.SetParent(go.transform);
+        capsule.transform.localPosition = Vector3.up * 1f;
+        var mat = new Material(Shader.Find("Standard"));
+        mat.color = color;
+        capsule.GetComponent<Renderer>().material = mat;
+        // 删掉占位体自己的 collider（避免和生成逻辑冲突），保留外层 GameObject
+        Object.DestroyImmediate(capsule.GetComponent<Collider>());
+        return go;
     }
 }
