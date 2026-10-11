@@ -139,7 +139,7 @@ public static class AnimeEnvironment
                 blade.transform.localScale = new Vector3(0.7f * s, 0.7f * s, 1f);
                 blade.transform.localRotation = Quaternion.Euler(-12f, k * 90f, 0f);
                 blade.GetComponent<Renderer>().material = grassMat;
-                Object.Destroy(blade.GetComponent<Collider>());
+                Object.DestroyImmediate(blade.GetComponent<Collider>());
             }
         }
 
@@ -183,7 +183,7 @@ public static class AnimeEnvironment
                 puff.transform.localPosition = new Vector3((p - puffs / 2f) * 2.6f, (float)rnd.NextDouble() * 1.2f, (float)rnd.NextDouble() * 2f - 1f);
                 puff.transform.localScale = new Vector3(ps * 1.4f, ps * 0.75f, ps);
                 puff.GetComponent<Renderer>().material = cloudMat;
-                Object.Destroy(puff.GetComponent<Collider>());
+                Object.DestroyImmediate(puff.GetComponent<Collider>());
             }
             var drift = cloud.AddComponent<CloudDrift>();
             drift.speed = 0.25f + (float)rnd.NextDouble() * 0.4f;

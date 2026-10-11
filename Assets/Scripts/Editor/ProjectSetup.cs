@@ -62,7 +62,7 @@ public static class ProjectSetup
         var bodyMat = new Material(Shader.Find("Standard"));
         bodyMat.color = new Color(0.95f, 0.55f, 0.25f); // 橙色小人
         body.GetComponent<Renderer>().material = bodyMat;
-        Object.Destroy(body.GetComponent<Collider>()); // 用 CharacterController 碰撞
+        Object.DestroyImmediate(body.GetComponent<Collider>()); // 用 CharacterController 碰撞
         var pc = playerGo.AddComponent<PlayerController>();
         pc.cameraPivot = camGo.transform;
         pc.speed = 6f;
