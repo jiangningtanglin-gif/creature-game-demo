@@ -9,7 +9,12 @@ using UnityEditor.SceneManagement;
 /// </summary>
 public static class BuildGame
 {
-    static void EnsureScene()
+    /// <summary>
+    /// UBA pre-export / 手动调用都行：保证场景存在，并注册到 Build Settings。
+    /// UBA 的标准构建从 EditorBuildSettings.scenes 读场景列表，空列表会直接报
+    /// "There were no scenes configured to build!"，与传给 BuildPlayer 的数组无关。
+    /// </summary>
+    public static void EnsureScene()
     {
         // 云构建机上资源可能还没导入完，重试几次
         for (int attempt = 0; attempt < 3; attempt++)
@@ -23,12 +28,20 @@ public static class BuildGame
             if (System.IO.File.Exists("Assets/Scenes/Main.unity"))
             {
                 Debug.Log($"场景已就绪 (尝试 {attempt + 1}/3)");
-                return;
+                break;
             }
             Debug.LogWarning($"场景文件未生成，重试 {attempt + 1}/3...");
             System.Threading.Thread.Sleep(5000);
         }
-        throw new System.Exception("场景生成失败：Assets/Scenes/Main.unity 不存在，检查 GLB 是否导入成功");
+        if (!System.IO.File.Exists("Assets/Scenes/Main.unity"))
+            throw new System.Exception("场景生成失败：Assets/Scenes/Main.unity 不存在，检查 GLB 是否导入成功");
+
+        // 注册到 Build Settings：UBA 标准构建只认这里的列表
+        EditorBuildSettings.scenes = new[]
+        {
+            new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true)
+        };
+        Debug.Log("场景已注册到 Build Settings: Assets/Scenes/Main.unity");
     }
 
     static void CommonSettings()
@@ -102,7 +115,7 @@ public static class BuildGame
         EnsureScene();
         CommonSettings();
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.bo.creaturegame");
-        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         // Demo 包用 Mono：IL2CPP 在小内存构建机上容易 OOM；正式 release 再切 IL2CPP
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
