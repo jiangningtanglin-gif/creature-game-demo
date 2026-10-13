@@ -53,7 +53,7 @@ public static class ProjectSetup
 
         // ---- 玩家（WASD 走路）----
         var playerGo = new GameObject("Player");
-        playerGo.transform.position = new Vector3(0f, 0.5f, 5f);
+        playerGo.transform.position = new Vector3(0f, 1.2f, 5f); // 出生在地面上，避免胶囊体初始陷入地面
         // 小人占位：胶囊体 + 简单材质
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.transform.SetParent(playerGo.transform);
@@ -66,6 +66,9 @@ public static class ProjectSetup
         var pc = playerGo.AddComponent<PlayerController>();
         pc.cameraPivot = camGo.transform;
         pc.speed = 6f;
+        // 镜头跟随玩家（TouchOrbit 统一驱动相机）
+        orbit.followTarget = playerGo.transform;
+        orbit.originTarget = origin.transform;
 
         // ---- 环境 ----
         AnimeEnvironment.Build();
@@ -108,6 +111,10 @@ public static class ProjectSetup
         var eggGo = new GameObject("EggHatch");
         var egg = eggGo.AddComponent<EggHatch>();
         dex.Init(gm, egg, font, cam);
+
+        // ---- 开发期屏显日志（正式版删掉此组件即可）----
+        var dbgGo = new GameObject("DebugConsole");
+        dbgGo.AddComponent<DebugConsole>();
 
         // ---- 保存 ----
         System.IO.Directory.CreateDirectory("Assets/Scenes");

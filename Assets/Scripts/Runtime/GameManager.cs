@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
             tag.def = d;
             spawned.Add(go);
         }
+        DebugConsole.Add($"精灵出生 {spawned.Count} 只", spawned.Count > 0 ? Color.green : Color.red);
     }
 
     /// <summary>把 GLB 统一缩放到目标高度（米）。</summary>

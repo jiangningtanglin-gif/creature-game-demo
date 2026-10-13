@@ -72,8 +72,9 @@ public static class AnimeEnvironment
             float a = (float)(rnd.NextDouble() * Mathf.PI * 2);
             float r = 12f + (float)rnd.NextDouble() * 22f;
             float s = 4f + (float)rnd.NextDouble() * 7f;
+            // 装饰色块：关掉碰撞体，玩家走路不会撞上隐形墙
             Prim(PrimitiveType.Sphere, new Vector3(Mathf.Cos(a) * r, -0.25f, Mathf.Sin(a) * r),
-                new Vector3(s, 0.7f, s * 0.8f), patchMat, "Patch" + i, root);
+                new Vector3(s, 0.7f, s * 0.8f), patchMat, "Patch" + i, root).GetComponent<Collider>().enabled = false;
         }
 
         // ---- 小山包（装饰，活动区外）----
@@ -110,13 +111,14 @@ public static class AnimeEnvironment
             tree.transform.SetParent(root);
             tree.transform.position = tp;
             float s = 0.8f + (float)rnd.NextDouble() * 0.7f;
+            // 树是装饰：碰撞体全关，否则树干/树冠都是隐形墙
             Prim(PrimitiveType.Cylinder, tp + new Vector3(0f, 1.2f * s, 0f), new Vector3(0.5f * s, 2.4f * s, 0.5f * s),
-                new Color(0.42f, 0.30f, 0.20f), "Trunk", tree.transform);
+                new Color(0.42f, 0.30f, 0.20f), "Trunk", tree.transform).GetComponent<Collider>().enabled = false;
             var leaf = new Color(0.30f, 0.62f, 0.30f);
             Prim(PrimitiveType.Sphere, tp + new Vector3(0f, 3.1f * s, 0f), new Vector3(3.2f * s, 2.6f * s, 3.2f * s),
-                leaf, "Crown1", tree.transform);
+                leaf, "Crown1", tree.transform).GetComponent<Collider>().enabled = false;
             Prim(PrimitiveType.Sphere, tp + new Vector3(1.1f * s, 2.4f * s, 0.6f * s), new Vector3(2.0f * s, 1.7f * s, 2.0f * s),
-                new Color(0.36f, 0.68f, 0.32f), "Crown2", tree.transform);
+                new Color(0.36f, 0.68f, 0.32f), "Crown2", tree.transform).GetComponent<Collider>().enabled = false;
         }
 
         // ---- 草丛：交叉面片，60 簇 ----
@@ -149,8 +151,9 @@ public static class AnimeEnvironment
             float a = (float)(rnd.NextDouble() * Mathf.PI * 2);
             float r = 8f + (float)rnd.NextDouble() * 22f;
             float s = 0.5f + (float)rnd.NextDouble() * 0.9f;
+            // 石头是装饰：关掉碰撞体
             Prim(PrimitiveType.Sphere, new Vector3(Mathf.Cos(a) * r, 0.15f * s, Mathf.Sin(a) * r),
-                new Vector3(s, s * 0.7f, s), new Color(0.62f, 0.63f, 0.60f), "Rock" + i, root);
+                new Vector3(s, s * 0.7f, s), new Color(0.62f, 0.63f, 0.60f), "Rock" + i, root).GetComponent<Collider>().enabled = false;
         }
 
         // ---- 花：小圆球点缀 ----

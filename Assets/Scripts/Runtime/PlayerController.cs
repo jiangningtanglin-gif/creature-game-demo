@@ -22,6 +22,14 @@ public class PlayerController : MonoBehaviour
             gameObject.AddComponent<CapsuleCollider>();
     }
 
+    void Start()
+    {
+        // 开机自检：玩家渲染器数量直接决定"有没有角色"
+        var renderers = GetComponentsInChildren<Renderer>();
+        DebugConsole.Add($"玩家就绪：渲染器 {renderers.Length} 个 @ {transform.position}",
+            renderers.Length > 0 ? Color.green : Color.red);
+    }
+
     void Update()
     {
         float h = Input.GetAxis("Horizontal");
@@ -43,13 +51,7 @@ public class PlayerController : MonoBehaviour
             var want = Quaternion.LookRotation(moveDir);
             transform.rotation = Quaternion.Slerp(transform.rotation, want, Time.deltaTime * turnSpeed);
         }
-
-        // 相机跟随
-        if (cameraPivot != null)
-        {
-            var targetPos = transform.position + new Vector3(0, 7f, -10f);
-            cameraPivot.position = Vector3.Lerp(cameraPivot.position, targetPos, Time.deltaTime * 5f);
-            cameraPivot.LookAt(transform.position + Vector3.up * 1.5f);
-        }
+        // 注意：相机由 TouchOrbit 统一驱动（含跟随玩家），这里不再碰相机，
+        // 否则 Update/LateUpdate 两处打架，相机永远跟不上玩家。
     }
 }

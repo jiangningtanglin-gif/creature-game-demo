@@ -1,18 +1,25 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 /// <summary>游戏 UI：标题、精灵切换按钮、图鉴卡、孵化按钮、状态提示。纯代码搭建 uGUI。</summary>
 public class DexUI : MonoBehaviour
 {
-    GameManager gm;
-    EggHatch hatch;
-    Font font;
-    Camera cam;
+    [Header("场景引用（Setup 时填充；公开字段会序列化进场景，运行时直接可用）")]
+    public GameManager gm;
+    public EggHatch hatch;
+    public Font font;
+    public Camera cam;
 
-    GameObject cardPanel;
-    Text cardName, cardType, cardDesc;
-    Text statusText;
+    [Header("UI 引用（BuildUI 生成后自动填充，运行时直接可用）")]
+    public GameObject cardPanel;
+    public Text cardName, cardType, cardDesc;
+    public Text statusText;
+    [Header("按钮（BuildUI 填充；监听在 Start 里重建，AddListener 的 lambda 不会序列化进场景）")]
+    public List<UnityEngine.UI.Button> creatureButtons = new List<UnityEngine.UI.Button>();
+    public UnityEngine.UI.Button hatchButton;
+    public UnityEngine.UI.Button closeButton;
     bool uiBusy; // 点在 UI 上时不触发 3D 点击
 
     public void Init(GameManager g, EggHatch h, Font f, Camera c)
@@ -105,15 +112,17 @@ public class DexUI : MonoBehaviour
         // 底部按钮区
         var names = new[] { "苔铃兽", "烬尾貘", "浮鳐灵" };
         var btnColors = new[] { new Color(0.35f, 0.62f, 0.32f), new Color(0.75f, 0.35f, 0.22f), new Color(0.30f, 0.55f, 0.85f) };
+        creatureButtons.Clear();
         for (int i = 0; i < 3; i++)
         {
             int idx = i;
             var b = MakeButton(uiRoot, names[i], new Vector2(-320f + i * 320f, -1560f), new Vector2(280f, 110f), btnColors[i]);
-            b.onClick.AddListener(() => { gm.FocusCreature(idx); });
+            b.onClick.AddListener(() => { if (gm != null) gm.FocusCreature(idx); });
+            creatureButtons.Add(b);
         }
-        var hatchBtn = MakeButton(uiRoot, "孵一颗蛋", new Vector2(0f, -1720f), new Vector2(560f, 130f),
+        hatchButton = MakeButton(uiRoot, "孵一颗蛋", new Vector2(0f, -1720f), new Vector2(560f, 130f),
             new Color(0.976f, 0.451f, 0.086f), 46); // 品牌橙
-        hatchBtn.onClick.AddListener(() => hatch.OnHatchButton());
+        hatchButton.onClick.AddListener(() => { if (hatch != null) hatch.OnHatchButton(); });
 
         // 图鉴卡（默认隐藏）
         cardPanel = MakePanel(uiRoot, new Vector2(860f, 900f), new Color(1f, 1f, 1f, 0.97f));
@@ -130,7 +139,35 @@ public class DexUI : MonoBehaviour
         cardDesc.rectTransform.sizeDelta = new Vector2(740f, 420f);
         var close = MakeButton(cardPanel.transform, "关闭", new Vector2(0f, -360f), new Vector2(300f, 110f),
             new Color(0.55f, 0.52f, 0.48f));
-        close.onClick.AddListener(() => cardPanel.SetActive(false));
+        close.onClick.AddListener(() => { if (cardPanel != null) cardPanel.SetActive(false); });
+        closeButton = close;
+    }
+
+    /// <summary>
+    /// 运行时重建按钮监听：AddListener 注册的 lambda 不会序列化进场景，
+    /// 构建包里按钮默认是"哑"的，这里在 Start 重新接上（先清后加，保证幂等）。
+    /// </summary>
+    void Start()
+    {
+        for (int i = 0; i < creatureButtons.Count; i++)
+        {
+            int idx = i;
+            var b = creatureButtons[idx];
+            if (b == null) continue;
+            b.onClick.RemoveAllListeners();
+            b.onClick.AddListener(() => { if (gm != null) gm.FocusCreature(idx); });
+        }
+        if (hatchButton != null)
+        {
+            hatchButton.onClick.RemoveAllListeners();
+            hatchButton.onClick.AddListener(() => { if (hatch != null) hatch.OnHatchButton(); });
+        }
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveAllListeners();
+            closeButton.onClick.AddListener(() => { if (cardPanel != null) cardPanel.SetActive(false); });
+        }
+        DebugConsole.Add($"UI 就绪：精灵按钮 {creatureButtons.Count} 个", Color.green);
     }
 
     public void ShowCard(CreatureDef d)

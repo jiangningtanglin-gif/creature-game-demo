@@ -11,9 +11,10 @@ public class EggHatch : MonoBehaviour
     [Header("支付开关：正式上线改为 true，并接入支付回调")]
     public bool requirePayment = false;
 
-    GameManager gm;
+    [Header("场景引用（Setup 时填充；公开字段会序列化进场景，运行时直接可用）")]
+    public GameManager gm;
+    public Text statusText;
     GameObject egg;
-    Text statusText;
     bool hatching;
 
     public void Init(GameManager g, Text status)

@@ -7,12 +7,22 @@ public class TouchOrbit : MonoBehaviour
     public float distance = 17f;
     public float minDistance = 8f;
     public float maxDistance = 26f;
+    [Header("跟随：target 为出生点时镜头平滑跟随玩家；点精灵看图鉴时不抢镜头")]
+    public Transform followTarget;  // 玩家
+    public Transform originTarget;  // CameraOrigin
     float yaw = 0f, pitch = 22f;
     float idleTime;
 
     void LateUpdate()
     {
         if (target == null) return;
+
+        // 跟随玩家（仅当焦点在出生点时）
+        if (followTarget != null && originTarget != null && target == originTarget)
+        {
+            var want = followTarget.position + Vector3.up * 1.2f;
+            target.position = Vector3.Lerp(target.position, want, Time.deltaTime * 4f);
+        }
 
         if (Input.touchCount == 1)
         {
@@ -61,6 +71,7 @@ public class TouchOrbit : MonoBehaviour
     public void FocusOrigin(Transform origin)
     {
         target = origin;
+        if (origin != null) origin.position = new Vector3(0f, 1.5f, 0f); // 回到初始点再跟随
         distance = 17f;
         idleTime = 0f;
     }
