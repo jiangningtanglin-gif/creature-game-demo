@@ -54,15 +54,24 @@ public static class ProjectSetup
         // ---- 玩家（WASD 走路）----
         var playerGo = new GameObject("Player");
         playerGo.transform.position = new Vector3(0f, 1.2f, 5f); // 出生在地面上，避免胶囊体初始陷入地面
-        // 小人占位：胶囊体 + 简单材质
+        // 小人：胶囊身体（法袍） + 球形头，比纯胶囊体更像角色
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.transform.SetParent(playerGo.transform);
         body.transform.localPosition = Vector3.zero;
         body.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
         var bodyMat = new Material(Shader.Find("Standard"));
-        bodyMat.color = new Color(0.95f, 0.55f, 0.25f); // 橙色小人
+        bodyMat.color = new Color(0.25f, 0.35f, 0.75f); // 蓝色法袍
         body.GetComponent<Renderer>().material = bodyMat;
         Object.DestroyImmediate(body.GetComponent<Collider>()); // 用 CharacterController 碰撞
+        // 头
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.transform.SetParent(playerGo.transform);
+        head.transform.localPosition = new Vector3(0f, 1.05f, 0f);
+        head.transform.localScale = Vector3.one * 0.55f;
+        var headMat = new Material(Shader.Find("Standard"));
+        headMat.color = new Color(0.95f, 0.80f, 0.65f); // 肤色
+        head.GetComponent<Renderer>().material = headMat;
+        Object.DestroyImmediate(head.GetComponent<Collider>());
         var pc = playerGo.AddComponent<PlayerController>();
         pc.cameraPivot = camGo.transform;
         pc.speed = 6f;
@@ -112,9 +121,9 @@ public static class ProjectSetup
         var egg = eggGo.AddComponent<EggHatch>();
         dex.Init(gm, egg, font, cam);
 
-        // ---- 开发期屏显日志（正式版删掉此组件即可）----
-        var dbgGo = new GameObject("DebugConsole");
-        dbgGo.AddComponent<DebugConsole>();
+        // ---- 开发期屏显日志：正式构建不加，免得挡画面 ----
+        // var dbgGo = new GameObject("DebugConsole");
+        // dbgGo.AddComponent<DebugConsole>();
 
         // ---- 保存 ----
         System.IO.Directory.CreateDirectory("Assets/Scenes");

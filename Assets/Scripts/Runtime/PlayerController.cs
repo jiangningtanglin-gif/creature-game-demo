@@ -17,9 +17,8 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         cc = GetComponent<CharacterController>();
-        // 简单小人占位：胶囊体
-        if (GetComponent<CapsuleCollider>() == null)
-            gameObject.AddComponent<CapsuleCollider>();
+        // CharacterController 自带碰撞体，不需要也不允许再加 CapsuleCollider
+        // （两者互斥，强加会报 "Adding component failed"）
     }
 
     void Start()

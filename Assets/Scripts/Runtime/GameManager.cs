@@ -27,10 +27,10 @@ public class GameManager : MonoBehaviour
             var go = Instantiate(d.prefab, spots[i], Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
             go.name = d.id;
             NormalizeScale(go, 1.4f);
+            FitCollider(go);  // 先加 BoxCollider，满足 CreatureWander 的 [RequireComponent(typeof(Collider))]
             var w = go.AddComponent<CreatureWander>();
             w.home = Vector3.zero;
             w.wanderRadius = 9f;
-            FitCollider(go);
             var tag = go.AddComponent<CreatureTag>();
             tag.def = d;
             spawned.Add(go);
